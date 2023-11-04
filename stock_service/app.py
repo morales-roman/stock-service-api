@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, current_app
 from stock_service import api
 
 
@@ -20,4 +20,7 @@ def register_blueprints(app):
 
 if __name__ == '__main__':
     app = create_app(False)
-    app.run(host='0.0.0.0', port=5001)
+    HOST_URL = current_app.config['FLASK_RUN_HOST']
+    HOST_PORT = current_app.config['FLASK_RUN_PORT']
+
+    app.run(host=HOST_URL, port=HOST_PORT)
