@@ -23,7 +23,7 @@ class StockResource(Resource):
         
         stock_code = request.args.get('q')
         if not stock_code:
-            return {'API Error': 'Missing stock code'}, 400  
+            return {"API Error": "Missing stock code"}, 400  
         
         stooq_url = current_app.config['STOOQ_API_URL'].format(stock_code)
         stock_data_obj = requests.get(stooq_url)
@@ -33,7 +33,7 @@ class StockResource(Resource):
         stock_data_obj = stock_data_obj.json()['symbols'][0]
 
         if not stock_data_obj.get('name'):
-            return {'API Error': 'Invalid stock code'}, 400
+            return {"API Error": "Invalid stock code"}, 400
         
         schema = StockSchema()
         
