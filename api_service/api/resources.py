@@ -1,12 +1,11 @@
 from flask import request, current_app
 from flask_restful import Resource
 import requests
-from api_service.api.schemas import StockInfoSchema
-from api_service.extensions import db
+from api_service.api.schemas import StockInfoSchema, StockStatsSchema, HistorySchema
+from api_service.extensions import db, dt, IError
 from api_service.models import User, StockEntry, RequestHistory, StockStat
 from api_service.auth.helpers import auth, admin_required
-from sqlalchemy.exc import IntegrityError
-from datetime import datetime as dt
+
 
 class StockQuery(Resource):
     """
@@ -23,20 +22,10 @@ class StockQuery(Resource):
             return data_from_service.json(), data_from_service.status_code
         
         data_from_service = data_from_service.json()
-
         self.save_data_to_db(data_from_service) # Save the response from the stock service
-        reduced_data = self.reduce_data(data_from_service)
-        
         schema = StockInfoSchema()
 
-        return schema.dump(reduced_data)
-    
-    def reduce_data(self, data):
-        return {
-            'symbol': data['symbol'],
-            'company_name': data['name'],
-            'quote': data['close']
-        }
+        return schema.dump(data_from_service)
     
     def save_data_to_db(self, data):
         user = User.query.filter_by(username=auth.current_user()).first()
@@ -53,7 +42,7 @@ class StockQuery(Resource):
         # Commit the session to save the changes
         try:
             db.session.commit()
-        except IntegrityError:
+        except IError:
             db.session.rollback()
 
     def arrange_stock_entry(self, data):
@@ -93,9 +82,17 @@ class History(Resource):
     """
     @auth.login_required
     def get(self):
-        # TODO: Implement this method.
-        pass
-
+        schema=HistorySchema(many=True)
+        user = User.query\
+            .filter_by(username=auth.current_user())\
+            .first()
+        # Get the stock entry requests made by the user
+        requests = StockEntry.query\
+            .join(RequestHistory, RequestHistory.entries_id == StockEntry.id)\
+            .filter(RequestHistory.user_id == user.id)\
+            .order_by(StockEntry.request_datetime.desc())\
+            .all()
+        return schema.dump(requests)
 
 class Stats(Resource):
     """
@@ -104,5 +101,9 @@ class Stats(Resource):
     @auth.login_required
     @admin_required
     def get(self):
-        # TODO: Implement this method.
-        pass
+        schema = StockStatsSchema(many=True)
+        stock_stats = StockStat.query\
+            .order_by(StockStat.times_requested.desc())\
+            .limit(5)\
+            .all()
+        return schema.dump(stock_stats)
