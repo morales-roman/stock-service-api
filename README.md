@@ -25,11 +25,11 @@ This project is a Flask-based API that allows registered users to query stock qu
 
 1. Clone the repository:
 
-```
+```sh
 git clone https://git.jobsity.com/roman_mor/flask-challenge.git
 ```
 2. Navigate to the cloned directory:
-```
+```sh
 cd flask-challenge
 ```
 2. Create a virtual environment and activate it:
@@ -38,15 +38,15 @@ python -m venv virtualenv
 . virtualenv/bin/activate
 ```
 3. Install project dependencies: 
-```
+```sh
 pip install -r requirements.txt
 ```
 4. Start the stock aggregator service: 
-```
+```sh
 cd stock_service ; flask run
 ```
-5. On a separate terminal start the API service: 
-```
+5. On a separate terminal session, start the API service: 
+```sh
 cd api_service ; flask init; flask db migrate; flask db upgrade ; flask run
 ```
 
