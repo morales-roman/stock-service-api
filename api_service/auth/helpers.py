@@ -1,7 +1,7 @@
 # encoding: utf-8
 
 from flask_httpauth import HTTPBasicAuth
-from flask import g
+from flask import g, abort
 from functools import wraps
 from api_service.models import User
 from api_service.extensions import pwd_context
@@ -24,6 +24,6 @@ def admin_required(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
         if g.current_user.role != 'ADMIN':
-            return {'message': 'You are not authorized to perform this action.'}, 403
+            abort(403, description='You are not authorized to perform this action.')
         return func(*args, **kwargs)
     return wrapper
