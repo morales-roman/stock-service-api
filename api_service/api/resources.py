@@ -3,11 +3,14 @@ from flask_restful import Resource
 import requests
 from api_service.api.schemas import StockInfoSchema
 from api_service.extensions import db
+from api_service.models import User, StockEntry, RequestHistory, StockStat
+from api_service.auth.helpers import auth, admin_required
 
 class StockQuery(Resource):
     """
     Endpoint to allow users to query stocks
     """
+    @auth.login_required
     def get(self):
         # TODO: Call the stock service, save the response, and return the response to the user in
         # the format dictated by the StockInfoSchema.
@@ -38,6 +41,7 @@ class History(Resource):
     """
     Returns queries made by current user.
     """
+    @auth.login_required
     def get(self):
         # TODO: Implement this method.
         pass
@@ -47,6 +51,8 @@ class Stats(Resource):
     """
     Allows admin users to see which are the most queried stocks.
     """
+    @auth.login_required
+    @admin_required
     def get(self):
         # TODO: Implement this method.
         pass
