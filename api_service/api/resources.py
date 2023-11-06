@@ -23,8 +23,8 @@ class StockQuery(Resource):
             return data_from_service.json(), data_from_service.status_code
         
         data_from_service = data_from_service.json()
-        
-        self.save_data(data_from_service) # Save the response from the stock service
+
+        self.save_data_to_db(data_from_service) # Save the response from the stock service
         reduced_data = self.reduce_data(data_from_service)
         
         schema = StockInfoSchema()
@@ -38,14 +38,29 @@ class StockQuery(Resource):
             'quote': data['close']
         }
     
-    def save_data(self, data):
+    def save_data_to_db(self, data):
         user = User.query.filter_by(username=auth.current_user()).first()
+        
+        # Transaction to save the stock entry and the request history
+        with db.session.begin_nested():
+            stock_entry = self.arrange_stock_entry(data)
+            db.session.add(stock_entry)
+            db.session.flush() # Flush the session to get the ID of the new StockEntry
+            request_history = self.arrange_request_history(user, stock_entry)
+            db.session.add(request_history)
+            self.add_or_merge_stock_stat(stock_entry.symbol)
+            
+        # Commit the session to save the changes
+        try:
+            db.session.commit()
+        except IntegrityError:
+            db.session.rollback()
+
+    def arrange_stock_entry(self, data):
         date_ = dt.strptime(data['date'], '%Y-%m-%d').date()
         time_= dt.strptime(data['time'], '%H:%M:%S').time()
         datetime_ = dt.combine(date_, time_)
-        # Transaction to save the stock entry and the request history
-        with db.session.begin_nested():
-            stock_entry = StockEntry(
+        stock_entry = StockEntry(
                 name=data['name'],
                 symbol=data['symbol'],
                 open=data['open'],
@@ -54,21 +69,22 @@ class StockQuery(Resource):
                 close=data['close'],
                 request_datetime=datetime_
             )
-            db.session.add(stock_entry)
-            # Flush the session to get the ID of the new StockEntry
-            db.session.flush()
-
-            request = RequestHistory(
-                user_id=user.id, 
+        return stock_entry
+    
+    def arrange_request_history(self, user, stock_entry):
+        request_history = RequestHistory(
+                user_id=user.id,
                 entries_id=stock_entry.id
             )
-            db.session.add(request)
-
-        # Commit the session to save the changes
-        try:
-            db.session.commit()
-        except IntegrityError:
-            db.session.rollback()
+        return request_history
+    
+    def add_or_merge_stock_stat(self, stock_symbol):
+        stock_stat = StockStat.query.filter_by(stock_symbol=stock_symbol).first()
+        if stock_stat:
+            stock_stat.times_requested += 1 # Increment the times requested
+        else:
+            stock_stat = StockStat(stock_symbol=stock_symbol)
+            db.session.add(stock_stat)
 
 
 class History(Resource):
@@ -89,4 +105,4 @@ class Stats(Resource):
     @admin_required
     def get(self):
         # TODO: Implement this method.
-        print("HERE STATS")
+        pass
