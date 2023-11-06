@@ -16,19 +16,33 @@ class StockResource(Resource):
     def get(self):        
         stock_code = request.args.get('q')
         if not stock_code:
-            return {"API Error": "Missing stock code"}, 400  
+            return {"API Error": "Missing stock code"}, 400
         
-        stooq_url = current_app.config['STOOQ_API_URL'].format(stock_code)
-        stock_data_obj = requests.get(stooq_url)
+        stock_data_obj = self.get_stock_data(stock_code)
         if stock_data_obj.status_code != 200:
             return {"API Error": "The external API may be out of service"}, 400
 
-        # Since the stooq API returns a list of objects, we only take the first one
-        stock_data_obj = stock_data_obj.json()['symbols'][0]
-
-        if not stock_data_obj.get('name'):
-            return {"API Error": "Invalid stock code"}, 400
+        valid_stock_code, stock_data_obj = self.validate_stock_code(stock_data_obj)
+        if not valid_stock_code:
+            return stock_data_obj, 400
         
         schema = StockSchema()
         
         return schema.dump(stock_data_obj)
+
+    def get_stock_data(self, stock_code):
+        """
+        Gets the stock data from the stooq API
+        """
+        stooq_url = current_app.config['STOOQ_API_URL'].format(stock_code)
+        stock_data_obj = requests.get(stooq_url)
+        return stock_data_obj
+
+    def validate_stock_code(self, stock_data_obj):
+        """
+        Validates that the stock code is valid
+        """
+        stock_data_obj = stock_data_obj.json()['symbols'][0] # Get the first element of the list
+        if not stock_data_obj.get('name'):
+            return False, {"API Error": "Invalid stock code"}
+        return True, stock_data_obj
