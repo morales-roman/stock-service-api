@@ -34,7 +34,7 @@ cd flask-challenge
 ```
 2. Create a virtual environment and activate it:
 ```sh
-python -m venv virtualenv
+python3 -m venv virtualenv
 . virtualenv/bin/activate
 ```
 3. Install project dependencies: 
@@ -45,9 +45,10 @@ pip install -r requirements.txt
 ```sh
 cd stock_service ; flask run
 ```
-5. On a separate terminal session, start the API service: 
+5. On a separate terminal session on the project root directory, activate the virtual environment, start the API service: 
 ```sh
-cd api_service ; flask init; flask db migrate; flask db upgrade ; flask run
+. virtualenv/bin/activate
+cd api_service ; flask init; flask run
 ```
 
 ## User Credentials
@@ -85,7 +86,7 @@ The stock data for the requested stock. This includes properties such as:
 
 **Example:**
 ```bash
-curl -u username:password "http://localhost:5000/stock?q=aapl.us"
+curl -u username:password "http://localhost:5000/api/v1/stock?q=aapl.us"
 ```
 
 ### GET /stats
@@ -103,7 +104,7 @@ A list of the top 5 most queried stocks, each with the following properties:
 
 **Example:**
 ```bash
-curl -u username:password http://localhost:5000/stats
+curl -u username:password http://localhost:5000/api/v1/stats
 ```
 
 ### GET /users/history
@@ -125,5 +126,5 @@ A list of stock query entries made by the current user, each with the following 
 
 **Example:**
 ```bash
-curl -u username:password "http://localhost:5000/users/history"
+curl -u username:password "http://localhost:5000/api/v1/users/history"
 ```
