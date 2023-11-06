@@ -50,16 +50,21 @@ cd stock_service ; flask run
 cd api_service ; flask init; flask db migrate; flask db upgrade ; flask run
 ```
 
-## Available users
+## User Credentials
 
-* Normal user:`(username : password)`
-    ```
-    johndoe : john 
-    ```
-* Admin user:`(username : password)`
-    ```
-    admin : admin 
-    ```
+This application has two types of users: normal users and admin users. Here are the credentials for each type:
+
+### Normal User
+
+- Username: `johndoe`
+- Password: `john`
+
+### Admin User
+
+- Username: `admin`
+- Password: `admin`
+
+Use these credentials when making requests that require authentication.
 ## API Endpoints
 
 ### GET /stock
