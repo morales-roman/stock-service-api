@@ -295,5 +295,8 @@ tags
 
 # Local generated db
 *.sqlite3
+
+# Others
 Annotations
 virtualenv
+*_.py
