@@ -13,21 +13,15 @@ class StockResource(Resource):
     them to our main API service. Currently we only get the data from a single external source:
     the stooq API.
     """
-    def get(self):
-        """
-        Retrieve stock data from the stooq service based on the stock code provided in the query parameter.
-
-        Returns:
-            A serialized representation of the stock data object.
-        """
-        
+    def get(self):        
         stock_code = request.args.get('q')
         if not stock_code:
             return {"API Error": "Missing stock code"}, 400  
         
         stooq_url = current_app.config['STOOQ_API_URL'].format(stock_code)
         stock_data_obj = requests.get(stooq_url)
-        stock_data_obj.raise_for_status() 
+        if stock_data_obj.status_code != 200:
+            return {"API Error": "The external API may be out of service"}, 400
 
         # Since the stooq API returns a list of objects, we only take the first one
         stock_data_obj = stock_data_obj.json()['symbols'][0]
