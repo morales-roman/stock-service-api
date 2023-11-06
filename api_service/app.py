@@ -4,6 +4,7 @@ from flask import Flask
 from api_service import api
 from api_service.extensions import db
 from api_service.extensions import migrate
+from api_service.manage import init
 
 
 def create_app(testing=False):
@@ -22,6 +23,7 @@ def create_app(testing=False):
 def configure_extensions(app):
     db.init_app(app)
     migrate.init_app(app, db)
+    app.cli.add_command(init)
 
 
 def register_blueprints(app):

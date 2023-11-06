@@ -1,2 +1,2 @@
 SECRET_KEY=testing
-DATABASE_URI=sqlite:///:memory:
+DATABASE_URI=sqlite:///api_service.sqlite3
