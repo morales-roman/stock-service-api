@@ -32,11 +32,15 @@ class StockQuery(Resource):
         
         # Transaction to save the stock entry and the request history
         with db.session.begin_nested():
+            # Save the stock entry
             stock_entry = self.arrange_stock_entry(data)
             db.session.add(stock_entry)
-            db.session.flush() # Flush the session to get the ID of the new StockEntry
+            # Flush the session to get the ID of the new StockEntry
+            db.session.flush()
+            # Save the request history
             request_history = self.arrange_request_history(user, stock_entry)
             db.session.add(request_history)
+            # Add or update the stock stats
             self.add_or_merge_stock_stat(stock_entry.symbol)
             
         # Commit the session to save the changes
@@ -68,10 +72,12 @@ class StockQuery(Resource):
         return request_history
     
     def add_or_merge_stock_stat(self, stock_symbol):
+        # If the stock symbol is already in the database, increment the times requested
         stock_stat = StockStat.query.filter_by(stock_symbol=stock_symbol).first()
         if stock_stat:
-            stock_stat.times_requested += 1 # Increment the times requested
+            stock_stat.times_requested += 1 
         else:
+            # If the stock symbol is not in the database, add it
             stock_stat = StockStat(stock_symbol=stock_symbol)
             db.session.add(stock_stat)
 
@@ -86,6 +92,7 @@ class History(Resource):
         user = User.query\
             .filter_by(username=auth.current_user())\
             .first()
+
         # Get the stock entry requests made by the user
         requests = StockEntry.query\
             .join(RequestHistory, RequestHistory.entries_id == StockEntry.id)\
@@ -106,4 +113,5 @@ class Stats(Resource):
             .order_by(StockStat.times_requested.desc())\
             .limit(5)\
             .all()
+
         return schema.dump(stock_stats)
