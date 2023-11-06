@@ -10,7 +10,6 @@ auth = HTTPBasicAuth()
 
 @auth.verify_password
 def verify(username, password):
-    # TODO: Use the data in the database to validate the user credentials.
     user = User.query.filter_by(username=username).first()
     if not user or not match_passwords(password, user.password):
         return False
@@ -21,6 +20,9 @@ def match_passwords(password, hashed_password):
     return pwd_context.verify(password, hashed_password)
 
 def admin_required(func):
+    """ 
+    Decorator to check if the user is an admin
+    """
     @wraps(func)
     def wrapper(*args, **kwargs):
         if g.current_user.role != 'ADMIN':

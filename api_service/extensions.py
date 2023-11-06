@@ -7,7 +7,6 @@ from flask_migrate import Migrate
 
 from sqlalchemy.exc import IntegrityError
 from datetime import datetime
-from sqlalchemy.orm import joinedload as jl
 
 
 db = SQLAlchemy()
@@ -16,4 +15,3 @@ migrate = Migrate()
 pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
 IError = IntegrityError
 dt = datetime
-joinedload = jl
