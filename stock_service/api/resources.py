@@ -16,13 +16,17 @@ class StockResource(Resource):
     def get(self):        
         stock_code = request.args.get('q')
         if not stock_code:
-            return {"API Error": "Missing stock code"}, 400
+            return {"API Error": "Missing stock code"}, 404
         
         stock_data_obj = self.get_stock_data(stock_code)
         if stock_data_obj.status_code != 200:
-            return {"API Error": "The external API may be out of service"}, 400
+            return {"API Error": "The external API may be out of service"}, 502
 
-        valid_stock_code, stock_data_obj = self.validate_stock_code(stock_data_obj)
+        try:
+            valid_stock_code, stock_data_obj = self.validate_stock_code(stock_data_obj)
+        except Exception as e:
+            return {"API Error": "The external API response is malformed."}, 502
+        
         if not valid_stock_code:
             return stock_data_obj, 400
         
