@@ -1,5 +1,4 @@
 <div align="center">
-    <img src="https://raw.githubusercontent.com/Jobsity/ReactChallenge/main/src/assets/jobsity_logo_small.png"/>
     <h1>Stock Quote API</h1>
 </div>
 
@@ -26,7 +25,7 @@ This project is a Flask-based API that allows registered users to query stock qu
 1. Clone the repository:
 
 ```sh
-git clone https://git.jobsity.com/roman_mor/flask-challenge.git
+git clone https://github.com/morales-roman/flask_stock.git
 ```
 2. Navigate to the cloned directory:
 ```sh
