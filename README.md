@@ -29,7 +29,7 @@ git clone https://github.com/morales-roman/flask_stock.git
 ```
 2. Navigate to the cloned directory:
 ```sh
-cd flask-challenge
+cd stock-service-api
 ```
 2. Create a virtual environment and activate it:
 ```sh
