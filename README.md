@@ -25,7 +25,7 @@ This project is a Flask-based API that allows registered users to query stock qu
 1. Clone the repository:
 
 ```sh
-git clone https://github.com/morales-roman/flask_stock.git
+git clone https://github.com/morales-roman/stock-service-api.git
 ```
 2. Navigate to the cloned directory:
 ```sh
